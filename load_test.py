@@ -153,4 +153,5 @@ sleep(randint(0,30))
 login_user(driver, user, event_id)
 stu_join_video(driver)
 send_chat_message(driver, "Hello from " + user.email)
+sleep(900)
 
