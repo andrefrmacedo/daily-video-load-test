@@ -149,9 +149,8 @@ chrome_options.add_argument("--disable-dev-shm-usage")
 driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=chrome_options)
 user = User(student_email)
 
-sleep(randint(0,30))
+sleep(randint(0,120))
 login_user(driver, user, event_id)
 stu_join_video(driver)
 send_chat_message(driver, "Hello from " + user.email)
-sleep(900)
-
+sleep(3600)
