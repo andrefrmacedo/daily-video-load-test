@@ -1,0 +1,22 @@
+{{- range .Values.users }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: daily-video-test
+  name: {{ printf "daily-%s" (replace "@" "-" .) | replace "." "-" }}
+  namespace: daily-video-test
+spec:
+  containers:
+  - env:
+    - name: STUDENT_EMAIL
+      value: {{ . }}
+    - name: EVENT_ID
+      value: {{ $.Values.event_id | quote }}
+    image: {{ $.Values.image }}
+    imagePullPolicy: Always
+    name: daily-load-test
+  restartPolicy: Always
+  terminationGracePeriodSeconds: 30
+{{- end }}

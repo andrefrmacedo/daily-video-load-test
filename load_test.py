@@ -136,8 +136,11 @@ def event_setup(employer_user: User):
 
     return assert_result
 
+print("Starting up")
 student_email = os.getenv("STUDENT_EMAIL")
+print("Running as " + student_email)
 event_id = os.getenv("EVENT_ID")
+print("Event ID: " + event_id)
 
 chrome_options = Options()
 chrome_options.binary_location= '/usr/bin/chromium'
@@ -145,11 +148,14 @@ chrome_options.add_argument("--headless")
 chrome_options.add_argument("--incognito")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--disable-gpu")
 
 driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=chrome_options)
 user = User(student_email)
 
+print("Sleep for random time between 0s and 2m")
 sleep(randint(0,120))
+print("Starting test...")
 login_user(driver, user, event_id)
 stu_join_video(driver)
 send_chat_message(driver, "Hello from " + user.email)
