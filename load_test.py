@@ -26,7 +26,8 @@ def login_user(driver: webdriver, user: User, event_id: int):
     driver.find_element(By.ID, "email-address-identifier").send_keys(user.email)
     driver.find_element(By.XPATH, "/html/body/div/div[2]/div[2]/div[1]/div[3]/form/div/button").click()
     driver.find_element(By.ID, "password").send_keys(user.password)
-    driver.find_element(By.XPATH, "/html/body/div/div[2]/div/form/div/div/button").click()
+    print("Logging in...")
+    driver.find_element(By.XPATH, "//button[text()='Sign In']").click()
 
 def create_virtual_large_event(driver):
     create_emp_event_url = BASE_URL + "/emp/events/new"
@@ -157,6 +158,9 @@ print("Sleep for random time between 0s and 2m")
 sleep(randint(0,120))
 print("Starting test...")
 login_user(driver, user, event_id)
+print("Joining video...")
 stu_join_video(driver)
+print("Sending chat message...")
 send_chat_message(driver, "Hello from " + user.email)
+print("Sleeping for 1h...")
 sleep(3600)
