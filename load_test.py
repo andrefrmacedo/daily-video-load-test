@@ -80,7 +80,7 @@ def send_chat_message(driver: webdriver, message_text):
     WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.ID, "chat-controls")))
     driver.find_element(By.ID, "chat-controls").click()
 
-    chat_element = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[1]/div/div[1]/div[2]/div[3]/div/div/div[2]/div[2]/div/form/div/div[1]/div/div/div/textarea")))
+    chat_element = WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[1]/div/div[1]/div[2]/div[3]/div/div/div[2]/div[2]/div/form/div/div[1]/div/div/div/textarea")))
     chat_element.send_keys(message_text)
     chat_element.submit()
 
