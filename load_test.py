@@ -29,7 +29,6 @@ def login_user(driver: webdriver, user: User, event_id: int):
     print("Logging in...")
     driver.find_element(By.XPATH, "//button[text()='Sign In']").click()
 
-def create_virtual_large_event(driver):
     create_emp_event_url = BASE_URL + "/emp/events/new"
     current_datetime = datetime.now()
     event_title = "Test event " + str(current_datetime)
@@ -66,7 +65,7 @@ def stu_join_video(driver: webdriver):
     except:
         print("Already registered for event")
     finally:
-        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, "/html/body/main/div[2]/div/div/div[2]/header/aside/div[2]/p[2]/button"))).click() # Join event
+        WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, "/html/body/main/div[2]/div/div/div[2]/header/aside/div[2]/p[2]/button"))).click() # Join event
 
     driver.close()
     driver.switch_to.window(driver.window_handles[0])
@@ -86,8 +85,6 @@ def send_chat_message(driver: webdriver, message_text):
 
     chat_message = WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, "isLocal"))).text
     assert message_text in chat_message
-
-def event_setup(employer_user: User):
     chrome_options = Options()
     chrome_options.add_argument("--incognito")
     chrome_options.add_argument("--no-sandbox")
