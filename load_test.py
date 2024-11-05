@@ -56,54 +56,6 @@ def send_chat_message(driver: webdriver, message_text):
 
     chat_message = WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, "isLocal"))).text
     assert message_text in chat_message
-    chrome_options = Options()
-    chrome_options.add_argument("--incognito")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=chrome_options)
-    
-    login_user(driver, employer_user)
-    event_id = create_virtual_large_event(driver)
-    driver.quit()
-
-    return event_id
-
-
-    chrome_options = Options()
-    chrome_options.add_argument("use-fake-ui-for-media-stream")
-    chrome_options.add_argument("--incognito")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.command_executor.set_timeout(10)
-
-    login_user(driver, employer_user)
-    emp_join_video(driver, event_id)
-    assert_result = send_chat_message(driver, "Hello World!")
-
-    sleep(90)
-    driver.quit()
-
-    return assert_result
-
-
-    sleep(randint(1,10))
-    chrome_options = Options()
-    # chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--incognito")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.command_executor.set_timeout(10)
-
-    login_user(driver, student_user)
-    stu_join_video(driver, event_id)
-    assert_result = send_chat_message(driver, "Hello from " + student_user.email)
-
-    sleep(60)
-    driver.quit()
-
-    return assert_result
 
 print("Starting up")
 student_email = os.getenv("STUDENT_EMAIL")
