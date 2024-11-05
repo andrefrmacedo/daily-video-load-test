@@ -29,35 +29,6 @@ def login_user(driver: webdriver, user: User, event_id: int):
     print("Logging in...")
     driver.find_element(By.XPATH, "//button[text()='Sign In']").click()
 
-    create_emp_event_url = BASE_URL + "/emp/events/new"
-    current_datetime = datetime.now()
-    event_title = "Test event " + str(current_datetime)
-    date_format = "%Y-%m-%d %I:%M %p"
-    start_date = current_datetime
-    end_date = start_date + timedelta(hours=3)
-
-    driver.get(create_emp_event_url)
-    driver.find_element(By.ID, "name").send_keys(event_title)
-    driver.find_element(By.XPATH, "/html/body/div[4]/div[4]/div/div/div/div[1]/div/form/div/div/div[4]/fieldset[1]/div/div/div[1]/label/input").click()
-    driver.find_element(By.ID, "startDate").send_keys(start_date.strftime(date_format).lower())
-    driver.find_element(By.ID, "endDate").send_keys(end_date.strftime(date_format).lower())
-    Select(driver.find_element(By.ID, "timeZone")).select_by_visible_text("Berlin")
-    driver.find_element(By.ID, "eventFormat-virtualEmployerHosted").click()
-    driver.find_element(By.ID, "virtualEventType-handshakeVirtualEventLarge").click()
-    driver.find_element(By.ID, "dailyVideoSession.recordingEnabled-No").click()
-    
-    mandatory_checkin = driver.find_element(By.ID, "employerKioskActive")
-    if mandatory_checkin.is_selected():
-        mandatory_checkin.click()
-
-    driver.find_element(By.XPATH, "/html/body/div[4]/div[4]/div/div/div/div[1]/div/form/div/div/div[4]/div[14]/div/div[2]/div[2]/div").send_keys("test description")
-    sleep(2)
-    driver.find_element(By.XPATH, "/html/body/div[4]/div[4]/div/div/div/div[1]/div/form/div/div/div[9]/div/div/div/button").click()
-    WebDriverWait(driver, 10).until(EC.title_contains(event_title))
-
-    parsed_url = urlparse(driver.current_url)
-    return parsed_url.path.split('/')[-1]
-
 def stu_join_video(driver: webdriver):
     try:
         WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "event-button"))).click() # Register for event
