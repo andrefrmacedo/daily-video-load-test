@@ -70,6 +70,13 @@ chrome_options.add_argument("--incognito")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--disable-gpu")
+chrome_options.add_argument("--disable-extensions")
+chrome_options.add_argument("--disable-images")
+chrome_options.add_argument("--media-cache-size=1")
+chrome_options.add_argument("--disk-cache-size=1")
+chrome_options.add_argument("--disable-plugins")
+chrome_options.add_argument("--disable-software-rasterizer")
+
 
 driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=chrome_options)
 user = User(student_email)
