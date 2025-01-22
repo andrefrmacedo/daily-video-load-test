@@ -48,6 +48,7 @@ def login_user(driver: webdriver, user: User, event_id: int):
 
     driver.find_element(By.ID, "email-address-identifier").send_keys(user.email)
     driver.find_element(By.XPATH, "/html/body/div/div[2]/div[2]/div[1]/div[3]/form/div/button").click()
+    print(json.dumps(get_performance_logs(driver), indent=2))
     driver.find_element(By.ID, "password").send_keys(user.password)
     
     print("Logging in...")
