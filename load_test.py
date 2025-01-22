@@ -19,33 +19,63 @@ class User:
     email: str
     password: str = "fishtank123!"
 
+# Track processed log entries
+processed_logs = set()
+
+def get_performance_logs(driver: webdriver):
+    """Fetch new network logs, avoiding duplicates."""
+    global processed_logs
+    logs = driver.get_log('performance')
+    new_network_logs = []
+    for entry in logs:
+        log = json.loads(entry['message'])
+        message = log['message']
+        log_id = entry['timestamp']
+
+        if log_id not in processed_logs:
+            processed_logs.add(log_id)
+
+        if 'Network' in message['method']:  # Filter network-related logs
+            new_network_logs.append(message)
+    return new_network_logs
+
 def login_user(driver: webdriver, user: User, event_id: int):
     # login_url = BASE_URL + "/login"
     stu_event_url = BASE_URL + "/stu/events/" + str(event_id)
     
     driver.get(stu_event_url)
+    print(json.dumps(get_performance_logs(driver), indent=2))
+
     driver.find_element(By.ID, "email-address-identifier").send_keys(user.email)
     driver.find_element(By.XPATH, "/html/body/div/div[2]/div[2]/div[1]/div[3]/form/div/button").click()
     driver.find_element(By.ID, "password").send_keys(user.password)
+    
     print("Logging in...")
     driver.find_element(By.XPATH, "//button[text()='Sign In']").click()
+    print(json.dumps(get_performance_logs(driver), indent=2))
+
 
 def stu_join_video(driver: webdriver):
     try:
         WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "event-button"))).click() # Register for event
+        print(json.dumps(get_performance_logs(driver), indent=2))
         sleep(5)
     except:
         print("Already registered for event")
     finally:
         WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, "/html/body/main/div[2]/div/div/div[2]/header/aside/div[2]/p[2]/button"))).click() # Join event
+        print(json.dumps(get_performance_logs(driver), indent=2))
 
     driver.close()
     driver.switch_to.window(driver.window_handles[0])
 
     # when a lot of browser windows are open, it takes quite a long time for daily elements to become visible
     WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[2]/div/div[1]/div/div/div[2]/div[1]/div/button"))).click() # Click Join
+    print(json.dumps(get_performance_logs(driver), indent=2))
     WebDriverWait(driver, 60).until(EC.frame_to_be_available_and_switch_to_it((By.XPATH, "/html/body/div[2]/div/div[1]/div/div/div[2]/div/iframe")))
+    print(json.dumps(get_performance_logs(driver), indent=2))
     WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.ID, "broadcast-joining"))).click() # Click "Get started"
+    print(json.dumps(get_performance_logs(driver), indent=2))
 
 def send_chat_message(driver: webdriver, message_text):
     WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.ID, "chat-controls")))
@@ -58,16 +88,6 @@ def send_chat_message(driver: webdriver, message_text):
     chat_message = WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, "isLocal"))).text
     assert message_text in chat_message
 
-def get_performance_logs(driver: webdriver):
-    """Fetch and parse performance logs."""
-    logs = driver.get_log('performance')
-    network_logs = []
-    for entry in logs:
-        log = json.loads(entry['message'])  # Parse the log entry as JSON
-        message = log['message']
-        if 'Network' in message['method']:  # Filter network-related logs
-            network_logs.append(message)
-    return network_logs
 
 print("Starting up")
 student_email = os.getenv("STUDENT_EMAIL")
@@ -108,7 +128,5 @@ try:
     sleep(7200)
     
 finally:
-    logs = get_performance_logs(driver)
-    print(json.dumps(logs, indent=2))
     driver.quit()
     print("Test finished")
