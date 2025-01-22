@@ -1,4 +1,5 @@
 import os
+import json
 from random import randint
 from time import sleep
 from datetime import datetime, timedelta
@@ -43,7 +44,7 @@ def stu_join_video(driver: webdriver):
 
     # when a lot of browser windows are open, it takes quite a long time for daily elements to become visible
     WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[2]/div/div[1]/div/div/div[2]/div[1]/div/button"))).click() # Click Join
-    WebDriverWait(driver, 30).until(EC.frame_to_be_available_and_switch_to_it((By.XPATH, "/html/body/div[2]/div/div[1]/div/div/div[2]/div/iframe")))
+    WebDriverWait(driver, 60).until(EC.frame_to_be_available_and_switch_to_it((By.XPATH, "/html/body/div[2]/div/div[1]/div/div/div[2]/div/iframe")))
     WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.ID, "broadcast-joining"))).click() # Click "Get started"
 
 def send_chat_message(driver: webdriver, message_text):
@@ -56,6 +57,17 @@ def send_chat_message(driver: webdriver, message_text):
 
     chat_message = WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, "isLocal"))).text
     assert message_text in chat_message
+
+def get_performance_logs(driver: webdriver):
+    """Fetch and parse performance logs."""
+    logs = driver.get_log('performance')
+    network_logs = []
+    for entry in logs:
+        log = json.loads(entry['message'])  # Parse the log entry as JSON
+        message = log['message']
+        if 'Network' in message['method']:  # Filter network-related logs
+            network_logs.append(message)
+    return network_logs
 
 print("Starting up")
 student_email = os.getenv("STUDENT_EMAIL")
@@ -76,18 +88,27 @@ chrome_options.add_argument("--media-cache-size=1")
 chrome_options.add_argument("--disk-cache-size=1")
 chrome_options.add_argument("--disable-plugins")
 chrome_options.add_argument("--disable-software-rasterizer")
+chrome_options.add_argument('--enable-logging')
+chrome_options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
 
 
 driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=chrome_options)
 user = User(student_email)
 
-print("Sleep for random time between 0s and 3m")
-sleep(randint(0,180))
-print("Starting test...")
-login_user(driver, user, event_id)
-print("Joining video...")
-stu_join_video(driver)
-print("Sending chat message...")
-send_chat_message(driver, "Hello from " + user.email)
-print("Sleeping for 1h...")
-sleep(3600)
+try:
+    print("Sleep for random time between 0s and 3m")
+    sleep(randint(0,180))
+    print("Starting test...")
+    login_user(driver, user, event_id)
+    print("Joining event and video...")
+    stu_join_video(driver)
+    print("Sending chat message...")
+    send_chat_message(driver, "Hello from " + user.email)
+    print("Sleeping for 2h...")
+    sleep(7200)
+    
+finally:
+    logs = get_performance_logs(driver)
+    print(json.dumps(logs, indent=2))
+    driver.quit()
+    print("Test finished")
