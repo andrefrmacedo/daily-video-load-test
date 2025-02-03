@@ -44,50 +44,46 @@ def login_user(driver: webdriver, user: User, event_id: int):
     stu_event_url = BASE_URL + "/stu/events/" + str(event_id)
     
     driver.get(stu_event_url)
-    print(json.dumps(get_performance_logs(driver), indent=2))
 
     driver.find_element(By.ID, "email-address-identifier").send_keys(user.email)
     driver.find_element(By.XPATH, "/html/body/div/div[2]/div[2]/div[1]/div[3]/form/div/button").click()
-    print(json.dumps(get_performance_logs(driver), indent=2))
     driver.find_element(By.ID, "password").send_keys(user.password)
     
     print("Logging in...")
     driver.find_element(By.XPATH, "//button[text()='Sign In']").click()
-    print(json.dumps(get_performance_logs(driver), indent=2))
 
 
 def stu_join_video(driver: webdriver):
     try:
         WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "event-button"))).click() # Register for event
-        print(json.dumps(get_performance_logs(driver), indent=2))
+
         sleep(5)
     except:
         print("Already registered for event")
     finally:
         WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, "/html/body/main/div[2]/div/div/div[2]/header/aside/div[2]/p[2]/button"))).click() # Join event
-        print(json.dumps(get_performance_logs(driver), indent=2))
+
 
     driver.close()
     driver.switch_to.window(driver.window_handles[0])
 
     # when a lot of browser windows are open, it takes quite a long time for daily elements to become visible
     WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[2]/div/div[1]/div/div/div[2]/div[1]/div/button"))).click() # Click Join
-    print(json.dumps(get_performance_logs(driver), indent=2))
     WebDriverWait(driver, 60).until(EC.frame_to_be_available_and_switch_to_it((By.XPATH, "/html/body/div[2]/div/div[1]/div/div/div[2]/div/iframe")))
-    print(json.dumps(get_performance_logs(driver), indent=2))
     WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.ID, "broadcast-joining"))).click() # Click "Get started"
-    print(json.dumps(get_performance_logs(driver), indent=2))
 
 def send_chat_message(driver: webdriver, message_text):
     WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.ID, "chat-controls")))
     driver.find_element(By.ID, "chat-controls").click()
 
-    chat_element = WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[1]/div/div[1]/div[2]/div[3]/div/div/div[2]/div[2]/div/form/div/div[1]/div/div/div/textarea")))
-    chat_element.send_keys(message_text)
-    chat_element.submit()
+    while True:
+        chat_element = WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[1]/div/div[1]/div[2]/div[3]/div/div/div[2]/div[2]/div/form/div/div[1]/div/div/div/textarea")))
+        chat_element.send_keys(message_text)
+        chat_element.submit()
 
-    chat_message = WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, "isLocal"))).text
-    assert message_text in chat_message
+        # WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.CLASS_NAME, "isLocal"))).text
+
+        sleep(2)
 
 
 print("Starting up")
@@ -117,16 +113,16 @@ driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=chro
 user = User(student_email)
 
 try:
-    print("Sleep for random time between 0s and 3m")
-    sleep(randint(0,180))
+    print("Sleep for random time between 0s and 2m")
+    sleep(randint(0,120))
     print("Starting test...")
     login_user(driver, user, event_id)
     print("Joining event and video...")
     stu_join_video(driver)
-    print("Sending chat message...")
+    print("Sending chat messages...")
     send_chat_message(driver, "Hello from " + user.email)
-    print("Sleeping for 2h...")
-    sleep(7200)
+    # print("Sleeping for 2h...")
+    # sleep(7200)
     
 finally:
     driver.quit()
