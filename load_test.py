@@ -83,7 +83,7 @@ def send_chat_message(driver: webdriver, message_text):
 
         # WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.CLASS_NAME, "isLocal"))).text
 
-        sleep(2)
+        sleep(randint(1,10)) # random wait time between 1s and 10s before sending next message
 
 
 print("Starting up")
